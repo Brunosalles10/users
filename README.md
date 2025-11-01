@@ -1,98 +1,85 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 📚 Projeto Acadêmico – Gerenciador de Trilhas de Aprendizado - OrganizaE
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+---
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## 🚀 Sobre o Projeto
 
-## Description
+Este é um aplicativo mobile desenvolvido em React Native para gerenciamento de atividades/trilhas acadêmicas.
+Com ele, o aluno pode cadastrar, visualizar, pesquisar, editar e excluir trilhas de estudo, facilitando o acompanhamento de prazos e conteúdos.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🛠️ Tecnologias Utilizadas
 
-```bash
-$ npm install
-```
+- **React Native (Expo)**
+- **JavaScript**
+- **Node.js + Express** (backend)
+- **react-native-toast-message** (notificações personalizadas)
+- **react-native-mask-input** (máscara para datas)
+- **@expo/vector-icons** (ícones)
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## 📱 Funcionalidades
 
-# watch mode
-$ npm run start:dev
+- ➕ **Adicionar trilha** com título, matéria, professor, data de entrega, status e link
+- 📋 **Listar todas as trilhas** em cards organizados
+- 🔍 **Pesquisar trilhas** por nome
+- 📝 **Editar trilha existente**
+- ❌ **Excluir trilha** (com confirmação via Toast)
+- 📅 **Máscara automática para datas** no formato `dd/mm/yyyy`
+- 🔔 **Mensagens toast personalizadas** (sucesso, erro, info)
+- ✅ **Ícones correspondentes ao status** da trilha:
+  - 🔴 **Pendente**
+  - 🔵 **Em andamento**
+  - 🟢 **Concluído**
 
-# production mode
-$ npm run start:prod
-```
+---
 
-## Run tests
+## 🎨 Layout
 
-```bash
-# unit tests
-$ npm run test
+- Interface **simples e intuitiva**
+- Trilhas exibidas em **cards com ícones representativos**
+- Ícones de status visíveis no cabeçalho de cada card
 
-# e2e tests
-$ npm run test:e2e
+---
 
-# test coverage
-$ npm run test:cov
-```
+## ⚙️ Como Rodar o Projeto
 
-## Deployment
+### 🔹 Pré-requisitos
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- Node.js instalado
+- Expo CLI (`npm install -g expo-cli`)
+- Servidor backend configurado (API Node/Express)
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 🔹 Passos
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+# Clone o repositório
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+git clone git@github.com:Brunosalles10/Projeto_Organizae.git
 
-## Resources
+# Acesse a pasta
 
-Check out a few resources that may come in handy when working with NestJS:
+cd nome-do-repo
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+# Instale as dependências
 
-## Support
+npm install
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+# Inicie o projeto
 
-## Stay in touch
+npx expo start
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 🔹 Rotas da API
 
-## License
+- POST /api/trilhas → Criar nova trilha
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- GET /api/trilhas → Listar todas as trilhas
+
+- PUT /api/trilhas/:id → Atualizar uma trilha
+
+- DELETE /api/trilhas/:id → Excluir uma trilha
+
+## 👨‍💻 Autores
+
+- Projeto desenvolvido por Bruno,Eloana e Ana – acadêmico de Análise e Desenvolvimento de Sistemas.
