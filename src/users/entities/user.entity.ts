@@ -13,4 +13,8 @@ export class User {
 
   @Column({ select: false })
   password: string;
+
+  //campo de controle de acesso do usuário, por padrao é 'user'
+  @Column({ default: 'user' })
+  role: string;
 }
