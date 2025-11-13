@@ -5,6 +5,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   Param,
   ParseIntPipe,
   Patch,
@@ -24,6 +25,7 @@ import { UsersService } from './users.service';
 @Controller('users')
 @ApiBearerAuth('JWT-auth') // Indica que esta rota usa autenticação Bearer JWT
 export class UsersController {
+  private readonly logger = new Logger(UsersController.name);
   constructor(private readonly usersService: UsersService) {}
 
   //lista todos os usuários
@@ -31,6 +33,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin') //Somente usuários com a role 'admin' podem acessar esta rota
   findAll() {
+    this.logger.log('Listando todos os usuários');
     return this.usersService.findAll();
   }
 
@@ -38,6 +41,7 @@ export class UsersController {
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
   getProfile(@Request() req: Request & { user: AuthUser }) {
+    this.logger.log(`Buscando perfil do usuário ID: ${req.user.sub}`);
     return this.usersService.findOne(req.user.sub);
   }
 
@@ -53,6 +57,7 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   create(@Body() dto: CreateUserDto) {
+    this.logger.log(`Criando novo usuário: ${dto.email}`);
     return this.usersService.create(dto);
   }
 
@@ -61,6 +66,7 @@ export class UsersController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin', 'user') //Usuários com role 'admin' ou 'user' podem acessar esta rota
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
+    this.logger.log(`Atualizando usuário ID: ${id}`);
     return this.usersService.update(id, dto);
   }
 
@@ -70,6 +76,7 @@ export class UsersController {
   @Roles('admin', 'user') //Usuários com role 'admin' ou 'user' podem acessar esta rota
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseIntPipe) id: number) {
+    this.logger.log(`Removendo usuário ID: ${id}`);
     return this.usersService.remove(id);
   }
 }

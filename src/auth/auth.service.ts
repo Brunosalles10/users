@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
@@ -6,6 +6,7 @@ import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   //injeção de dependências
   constructor(
     private readonly usersService: UsersService,
@@ -36,6 +37,9 @@ export class AuthService {
 
     //se o usuário não for encontrado, lança uma exceção
     if (!user) {
+      this.logger.warn(
+        `Tentativa de login falhou para o email: ${loginDto.email}`,
+      );
       throw new UnauthorizedException('Usuário não encontrado');
     }
 
@@ -47,8 +51,13 @@ export class AuthService {
 
     //se a senha for inválida, lança uma exceção
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Senha inválida');
+      this.logger.warn(
+        `Tentativa de login falhou para o email: ${loginDto.email} - Credenciais inválidas`,
+      );
+      throw new UnauthorizedException('Credenciais inválidas');
     }
+
+    this.logger.log(`Token JWT gerado para: ${user.email}`);
 
     //cria o payload do token JWT
     const payload = { sub: user.id, email: user.email, role: user.role };

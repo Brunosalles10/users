@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CacheService } from '../redis/cache.service';
 import { PubSubService } from '../redis/pubsub.service';
@@ -16,6 +16,9 @@ import { User } from './entities/user.entity';
 // Serviço responsável pela lógica de negócios relacionada aos usuários
 @Injectable()
 export class UsersService {
+  // Logger para registrar eventos e erros
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     // Injeção do repositório do TypeORM para a entidade User
     @InjectRepository(User)
@@ -24,11 +27,10 @@ export class UsersService {
     private readonly pubSubService: PubSubService,
   ) {}
 
-  // Logger para registrar eventos e erros
-  private readonly logger = new Logger(UsersService.name);
-
   // Cria um novo usuário, json com nome, email e senha
   async create(createUserDto: CreateUserDto): Promise<User> {
+    this.logger.log(`Iniciando criação de usuário: ${createUserDto.email}`);
+
     const existingUser = await this.userRepository.findOne({
       where: { email: createUserDto.email },
     });
@@ -68,14 +70,17 @@ export class UsersService {
 
   // Retorna todos os usuários, sem a senha
   async findAll(): Promise<User[]> {
+    this.logger.log('Buscando todos os usuários');
+
     const cacheKey = 'users:all';
     const cachedUsers = await this.cacheService.get<User[]>(cacheKey);
     if (cachedUsers) {
+      this.logger.debug(`Retornando ${cachedUsers.length} usuários do cache`);
       return cachedUsers;
     }
 
     const users = await this.userRepository.find({
-      select: ['id', 'name', 'email'], // não retorna senha
+      select: ['id', 'name', 'email', 'role'],
     });
 
     this.logger.log(`encontrados ${users.length} usuários no banco de dados.`);
@@ -87,22 +92,27 @@ export class UsersService {
 
   // Retorna um usuário pelo ID (com cache)
   async findOne(id: number): Promise<User> {
+    this.logger.log(`Buscando usuário ID: ${id}`);
+
     const cacheKey = `user:${id}`;
     const cachedUser = await this.cacheService.get<User>(cacheKey);
 
     if (cachedUser) {
+      this.logger.debug(`Usuário ID ${id} retornado do cache`);
       return cachedUser;
     }
 
     const user = await this.userRepository.findOne({
       where: { id },
-      select: ['id', 'name', 'email'],
+      select: ['id', 'name', 'email', 'role'],
     });
 
     if (!user) {
       this.logger.warn(`Usuário com id ${id} não encontrado.`);
       throw new NotFoundException(`Usuário com id ${id} não encontrado.`);
     }
+
+    this.logger.log(`Usuário ID ${id} encontrado: ${user.email}`);
 
     // Cache de 60 segundos
     await this.cacheService.set(cacheKey, user, 60);
@@ -111,6 +121,9 @@ export class UsersService {
 
   // Atualiza um usuário existente, incluindo a possibilidade de alterar a senha
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    this.logger.log(`✏️ Atualizando usuário ID: ${id}`);
+
+    // Verifica se o usuário existe
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       this.logger.warn(`Usuário com id ${id} não encontrado.`);
@@ -118,6 +131,7 @@ export class UsersService {
     }
 
     if (updateUserDto.password) {
+      this.logger.debug(`Atualizando senha do usuário ID: ${id}`);
       updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
@@ -142,6 +156,8 @@ export class UsersService {
 
   // Remove um usuário pelo ID
   async remove(id: number): Promise<void> {
+    this.logger.log(`🗑️ Removendo usuário ID: ${id}`);
+
     const result = await this.userRepository.delete(id);
     // Verifica se o usuário foi encontrado e removido
     if (result.affected === 0) {
