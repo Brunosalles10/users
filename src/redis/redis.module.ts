@@ -10,8 +10,6 @@ import { PubSubService } from './pubsub.service';
 @Global()
 @Module({
   providers: [
-    CacheService,
-    PubSubService,
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
@@ -32,6 +30,8 @@ import { PubSubService } from './pubsub.service';
         return client;
       },
     },
+    CacheService,
+    PubSubService,
   ],
   exports: ['REDIS_CLIENT', CacheService, PubSubService],
 })

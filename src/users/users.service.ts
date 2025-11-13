@@ -163,6 +163,9 @@ export class UsersService {
 
   //permite encontrar um usuário pelo email para fazer login
   async findByEmail(email: string) {
-    return await this.userRepository.findOne({ where: { email } });
+    return await this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'name', 'email', 'password', 'role'],
+    });
   }
 }

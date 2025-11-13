@@ -9,6 +9,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 interface JwtPayload {
   sub: number; // ID do usuário
   email: string;
+  role: string; // Role do usuário
 }
 
 // Estratégia JWT para autenticação
@@ -24,6 +25,11 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   // Validação do payload do JWT, retornando os dados do usuário
   validate(payload: JwtPayload) {
-    return { userId: payload.sub, email: payload.email };
+    return {
+      sub: payload.sub,
+      userId: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
   }
 }

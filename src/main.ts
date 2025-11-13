@@ -11,7 +11,17 @@ async function bootstrap() {
     .setTitle('Organizae API - Users')
     .setDescription('API de gerenciamento de usuários (com Redis, Cache e JWT)')
     .setVersion('1.0')
-    .addBearerAuth() // adiciona campo para token JWT
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Informe o token JWT',
+        in: 'header',
+      },
+      'JWT-auth',
+    ) // adiciona campo para token JWT
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

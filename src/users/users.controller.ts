@@ -13,27 +13,38 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { ApiBearerAuth } from '@nestjs/swagger';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { AuthUser } from '../auth/interfaces/auth-user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@UseGuards(AuthGuard('jwt'), RolesGuard)
-//Define o controlador para a rota /users
+@ApiBearerAuth('JWT-auth') // Indica que esta rota usa autenticação Bearer JWT
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  //lista todos os usuários
   @Get()
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin') //Somente usuários com a role 'admin' podem acessar esta rota
   findAll() {
     return this.usersService.findAll();
   }
 
-  //parseIntPipe garante que o id será um número
+  //Rota protegida que retorna o perfil do usuário autenticado, usando o AuthGuard com estratégia JWT
+  @Get('profile')
+  @UseGuards(AuthGuard('jwt'))
+  getProfile(@Request() req: Request & { user: AuthUser }) {
+    return this.usersService.findOne(req.user.sub);
+  }
+
+  //Busca usuario por ID, parseIntPipe garante que o id será um número
   @Get(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'user') //Usuários com role 'admin' ou 'user' podem acessar esta rota
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
   }
@@ -47,21 +58,18 @@ export class UsersController {
 
   //Está rota atualiza um usuário específico
   @Patch(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'user') //Usuários com role 'admin' ou 'user' podem acessar esta rota
   update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto);
   }
 
   //Está rota remove um usuário específico, retornando código 204 (No Content)
   @Delete(':id')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'user') //Usuários com role 'admin' ou 'user' podem acessar esta rota
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);
-  }
-
-  //Rota protegida que retorna o perfil do usuário autenticado, usando o AuthGuard com estratégia JWT
-  @UseGuards(AuthGuard('jwt'))
-  @Get('profile')
-  getProfile(@Request() req: Request & { user: AuthUser }) {
-    return this.usersService.findOne(req.user.userId);
   }
 }
