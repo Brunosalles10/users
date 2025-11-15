@@ -25,7 +25,7 @@ export class UsersService {
     private readonly pubSubService: PubSubService,
   ) {}
 
-  // Cria um novo usuário, json com nome, email e senha
+  // Cria um novo usuário email e senha
   async create(createUserDto: CreateUserDto): Promise<User> {
     this.logger.log(`Iniciando criação de usuário: ${createUserDto.email}`);
 

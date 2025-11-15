@@ -23,8 +23,6 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-
-    //se não encontrar o usuário ou a senha for inválida, retorna null
     return null;
   }
 

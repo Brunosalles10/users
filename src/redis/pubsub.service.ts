@@ -62,6 +62,7 @@ export class PubSubService implements OnModuleInit {
       }
       const data = JSON.parse(message) as UserEvent;
 
+      // Mapeia canais para ações específicas
       const handlers: Record<string, () => void> = {
         'user.created': () =>
           this.logger.log(`Novo usuário criado: ${data.email} (id=${data.id})`),

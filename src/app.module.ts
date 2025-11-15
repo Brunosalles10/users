@@ -16,7 +16,7 @@ import { UsersModule } from './users/users.module';
       password: process.env.DB_PASS || 'postgres',
       database: process.env.DB_NAME || 'usersdb',
       entities: [User],
-      synchronize: false, // apaga e recria as tabelas automaticamente (não usar em produção)
+      synchronize: false, // apaga e recria as tabelas automaticamente
     }),
     UsersModule,
     AuthModule,

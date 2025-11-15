@@ -68,7 +68,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  @Roles('admin') //Usuários com role 'admin' ou 'user' podem acessar esta rota
+  @Roles('admin')
   @HttpCode(HttpStatus.NO_CONTENT) //Retorna 204 No Content em caso de sucesso
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(id);

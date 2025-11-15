@@ -19,9 +19,7 @@ export class CacheService {
       this.logger.log(`Cache HIT → ${key}`);
       return JSON.parse(value) as T;
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Erro desconhecido';
-      this.logger.error(`Erro ao ler cache (${key}): ${errorMessage}`);
+      this.handleError('ler cache', key, err);
       return null;
     }
   }
@@ -37,9 +35,7 @@ export class CacheService {
       await this.redisClient.set(key, JSON.stringify(value), 'EX', ttl);
       this.logger.log(`Cache SET → ${key} (TTL: ${ttl}s)`);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Erro desconhecido';
-      this.logger.error(`Erro ao gravar cache (${key}): ${errorMessage}`);
+      this.handleError('gravar cache', key, err);
     }
   }
 
@@ -52,23 +48,24 @@ export class CacheService {
       await this.redisClient.del(key);
       this.logger.log(`Cache DEL → ${key}`);
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Erro desconhecido';
-      this.logger.error(`Erro ao deletar cache (${key}): ${errorMessage}`);
+      this.handleError('deletar cache', key, err);
     }
   }
 
-  /**
-   * Limpa todo o cache
-   */
+  // Limpa todo o cache do Redis
   async flushAll(): Promise<void> {
     try {
       await this.redisClient.flushall();
       this.logger.warn(' Todos os caches foram limpos!');
     } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : 'Erro desconhecido';
-      this.logger.error('Erro ao limpar todo o cache:', errorMessage);
+      this.handleError('limpar todo o cache', 'all', err);
     }
+  }
+
+  // Função auxiliar para lidar com erros
+  private handleError(operation: string, key: string, error: unknown): void {
+    const errorMessage =
+      error instanceof Error ? error.message : 'Erro desconhecido';
+    this.logger.error(`Erro ao ${operation} (${key}): ${errorMessage}`);
   }
 }

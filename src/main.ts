@@ -22,7 +22,7 @@ async function bootstrap() {
         in: 'header',
       },
       'JWT-auth',
-    ) // adiciona campo para token JWT
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
