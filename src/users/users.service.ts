@@ -13,10 +13,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 
-// Serviço responsável pela lógica de negócios relacionada aos usuários
 @Injectable()
 export class UsersService {
-  // Logger para registrar eventos e erros
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
@@ -119,12 +117,13 @@ export class UsersService {
     return user;
   }
 
-  // Atualiza um usuário existente, incluindo a possibilidade de alterar a senha
+  // Atualiza um usuário existente, incluindo a possibilidade de alterar a senha.
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    this.logger.log(`✏️ Atualizando usuário ID: ${id}`);
+    this.logger.log(`Atualizando usuário ID: ${id}`);
 
     // Verifica se o usuário existe
     const user = await this.userRepository.findOne({ where: { id } });
+
     if (!user) {
       this.logger.warn(`Usuário com id ${id} não encontrado.`);
       throw new NotFoundException(`Usuário com id ${id} não encontrado.`);

@@ -24,11 +24,11 @@ export class RolesGuard implements CanActivate {
     );
 
     if (!requiredRoles) {
-      this.logger.debug('Rota pública (sem restrição de roles)');
-      return true; // Se a rota não exigir roles, libera
+      this.logger.debug('Rota pública sem restrição de roles');
+      return true;
     }
 
-    //tipagem do request
+    // Extrai informações da requisição
     const request = context.switchToHttp().getRequest<{
       user: AuthUser;
       params: { id?: string };
@@ -61,9 +61,9 @@ export class RolesGuard implements CanActivate {
 
     if (hasRequiredRole) {
       this.logger.log(
-        `ACESSO PERMITIDO: Usuário possui role "${user.role}" (liberado por permissão)`,
+        `ACESSO PERMITIDO: Usuário possui role "${user.role}" necessária`,
       );
-      return true; // Se tiver a role (ex: admin), libera
+      return true; // Se tiver a role (ex: admin), libera.
     }
 
     // Se não tiver a role, verifica se é o dono do recurso
@@ -71,7 +71,7 @@ export class RolesGuard implements CanActivate {
 
     if (!resourceIdParam) {
       this.logger.warn(
-        `ACESSO NEGADO: Usuário "${user.role}" não possui permissão e não há ID para verificar propriedade`,
+        `ACESSO NEGADO: Usuário "${user.role}" não possui permissão.`,
       );
       throw new ForbiddenException(
         `Acesso negado: necessário ter uma das roles [${requiredRoles.join(', ')}]`,
@@ -79,7 +79,7 @@ export class RolesGuard implements CanActivate {
     }
 
     const resourceId = parseInt(resourceIdParam, 10);
-
+    // Valida se o ID do recurso é um número válido
     if (isNaN(resourceId)) {
       this.logger.error(`ERRO: ID do recurso inválido (${resourceIdParam})`);
       throw new ForbiddenException('ID do recurso inválido');

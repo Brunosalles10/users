@@ -7,7 +7,6 @@ import { LoginDto } from './dto/login.dto';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  //injeção de dependências
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -20,7 +19,6 @@ export class AuthService {
 
     //compara a senha informada com a senha armazenada
     if (user && (await bcrypt.compare(password, user.password))) {
-      //password cridada para evitar o retorno da senha
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;

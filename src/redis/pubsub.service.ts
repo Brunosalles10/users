@@ -11,7 +11,6 @@ export class PubSubService implements OnModuleInit {
   constructor(@Inject('REDIS_CLIENT') private readonly publisher: Redis) {}
 
   //Inicializa o subscriber Redis
-
   async onModuleInit() {
     this.subscriber = this.publisher.duplicate();
 
@@ -36,7 +35,6 @@ export class PubSubService implements OnModuleInit {
   }
 
   //Publica uma mensagem em um canal específico
-
   async publish(channel: string, message: any) {
     try {
       const payload = JSON.stringify(message);
@@ -54,7 +52,6 @@ export class PubSubService implements OnModuleInit {
   }
 
   // Logica para lidar com eventos recebidos
-
   private handleEvent(channel: string, message: string) {
     try {
       interface UserEvent {
@@ -65,26 +62,26 @@ export class PubSubService implements OnModuleInit {
       }
       const data = JSON.parse(message) as UserEvent;
 
-      switch (channel) {
-        case 'user.created':
-          this.logger.log(`Novo usuário criado: ${data.email} (id=${data.id})`);
-          break;
-        case 'user.updated':
-          this.logger.log(`Usuário atualizado: ${data.id}`);
-          break;
-        case 'user.deleted':
-          this.logger.warn(`Usuário removido: ${data.id}`);
-          break;
-        case 'activity.created':
+      const handlers: Record<string, () => void> = {
+        'user.created': () =>
+          this.logger.log(`Novo usuário criado: ${data.email} (id=${data.id})`),
+        'user.updated': () => this.logger.log(`Usuário atualizado: ${data.id}`),
+        'user.deleted': () => this.logger.warn(`Usuário removido: ${data.id}`),
+        'activity.created': () =>
           this.logger.log(
             `Nova atividade criada (id=${data.id}) para usuário ${data.userId}`,
-          );
-          break;
-        case 'activity.updated':
-          this.logger.log(`Atividade atualizada (id=${data.id})`);
-          break;
-        default:
-          this.logger.warn(`Canal desconhecido: ${channel}`);
+          ),
+        'activity.updated': () =>
+          this.logger.log(`Atividade atualizada (id=${data.id})`),
+        'activity.deleted': () =>
+          this.logger.warn(`Atividade removida: ${data.id}`),
+      };
+
+      const handler = handlers[channel];
+      if (handler) {
+        handler();
+      } else {
+        this.logger.warn(`Canal desconhecido: ${channel}`);
       }
     } catch (err) {
       if (err instanceof SyntaxError) {

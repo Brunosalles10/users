@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-// Interface para o payload do JWT
 interface JwtPayload {
   sub: number; // ID do usuário
   email: string;
