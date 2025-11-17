@@ -1,0 +1,32 @@
+# Output de compilação
+dist
+build
+
+# Node modules (sempre instale dentro do container!)
+node_modules
+
+# Environment (NUNCA enviar para a imagem!)
+.env
+*.env
+
+# Logs
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+
+# Testes e configs locais
+coverage
+.eslintcache
+
+# Arquivos de configuração que não precisam ir para a imagem
+*.md
+Dockerfile
+docker-compose.yml
+
+# Cache do Nest CLI
+.cache
