@@ -7,16 +7,13 @@ export class CacheService {
 
   constructor(@Inject('REDIS_CLIENT') private readonly redisClient: Redis) {}
 
-  /**
-   * Retorna um valor do cache
-   * @param key Chave única do cache
-   */
+  // Recupera um valor do cache pelo chave
   async get<T>(key: string): Promise<T | null> {
     try {
       const value = await this.redisClient.get(key);
       if (!value) return null;
 
-      this.logger.log(`Cache HIT → ${key}`);
+      this.logger.debug(`Cache HIT → ${key}`);
       return JSON.parse(value) as T;
     } catch (err) {
       this.handleError('ler cache', key, err);
@@ -24,12 +21,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Armazena um valor no cache com tempo de expiração
-   * @param key Chave do cache
-   * @param value Valor a ser armazenado
-   * @param ttl Tempo de expiração em segundos
-   */
+  // Armazena um valor no cache com uma chave e tempo de expiração (TTL)
   async set<T>(key: string, value: T, ttl = 60): Promise<void> {
     try {
       await this.redisClient.set(key, JSON.stringify(value), 'EX', ttl);
@@ -39,10 +31,7 @@ export class CacheService {
     }
   }
 
-  /**
-   * Remove um valor do cache
-   * @param key Chave do cache
-   */
+  // Remove um valor do cache pela chave
   async del(key: string): Promise<void> {
     try {
       await this.redisClient.del(key);

@@ -40,7 +40,6 @@ export class UsersController {
   @Get('profile')
   @UseGuards(AuthGuard('jwt'))
   getProfile(@Request() req: Request & { user: AuthUser }) {
-    this.logger.log(`Buscando perfil do usuário ID: ${req.user.sub}`);
     return this.usersService.findOne(req.user.sub);
   }
 
@@ -55,7 +54,6 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED) //httpCode define o código de resposta HTTP
   create(@Body() dto: CreateUserDto) {
-    this.logger.log(`Criando novo usuário: ${dto.email}`);
     return this.usersService.create(dto);
   }
 

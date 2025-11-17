@@ -1,18 +1,16 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Logger, Module } from '@nestjs/common';
 import Redis from 'ioredis';
 import { CacheService } from './cache.service';
 import { PubSubService } from './pubsub.service';
 
-/**
- * Módulo global de Redis — cria uma conexão reutilizável
- * e exporta o cliente Redis para outros serviços (cache, pub/sub, etc.)
- */
+// Módulo Redis global para cache e Pub/Sub
 @Global()
 @Module({
   providers: [
     {
       provide: 'REDIS_CLIENT',
       useFactory: () => {
+        const logger = new Logger('RedisClient');
         // Cria e configura o cliente Redis
         const client = new Redis({
           host: process.env.REDIS_HOST || 'redis',
@@ -20,11 +18,11 @@ import { PubSubService } from './pubsub.service';
         });
 
         client.on('connect', () => {
-          console.log(' Redis conectado com sucesso!');
+          logger.log('Conectado ao Redis com sucesso!');
         });
 
         client.on('error', (err) => {
-          console.error('Erro ao conectar ao Redis:', err);
+          logger.error(`Erro na conexão com o Redis: ${err.message}`);
         });
 
         return client;

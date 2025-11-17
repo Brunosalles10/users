@@ -155,7 +155,7 @@ export class UsersService {
 
   // Remove um usuário pelo ID
   async remove(id: number): Promise<void> {
-    this.logger.log(`🗑️ Removendo usuário ID: ${id}`);
+    this.logger.log(`Removendo usuário ID: ${id}`);
 
     const result = await this.userRepository.delete(id);
     // Verifica se o usuário foi encontrado e removido
