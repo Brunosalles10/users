@@ -2,10 +2,10 @@
 dist
 build
 
-# Node modules (sempre instale dentro do container!)
+# Node modules
 node_modules
 
-# Environment (NUNCA enviar para a imagem!)
+# Environment
 .env
 *.env
 

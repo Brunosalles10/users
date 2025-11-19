@@ -10,15 +10,14 @@ interface JwtPayload {
   email: string;
   role: string; // Role do usuário
 }
-
 // Estratégia JWT para autenticação
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(), //define que o token será extraído do cabeçalho Authorization como Bearer Token
-      ignoreExpiration: false, //o token expira normalmente (se o jwt tiver expiração)
-      secretOrKey: process.env.JWT_SECRET || 'supersecret', // usa variável de ambiente para a chave secreta do JWT
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET || 'supersecret',
     });
   }
 

@@ -18,14 +18,12 @@ export class UsersService {
   private readonly logger = new Logger(UsersService.name);
 
   constructor(
-    // Injeção do repositório do TypeORM para a entidade User
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly cacheService: CacheService,
     private readonly pubSubService: PubSubService,
   ) {}
 
-  // Cria um novo usuário email e senha
   async create(createUserDto: CreateUserDto): Promise<User> {
     this.logger.log(`Iniciando criação de usuário: ${createUserDto.email}`);
 
@@ -33,13 +31,11 @@ export class UsersService {
       where: { email: createUserDto.email },
     });
 
-    // Verifica se o email já está em uso
     if (existingUser) {
       this.logger.warn(`Email já está em uso: ${createUserDto.email}`);
       throw new BadRequestException('Email já está em uso.');
     }
 
-    // Hash da senha antes de salvar no banco de dados, o parametro 10 é o custo hash
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
 
     const newUser = this.userRepository.create({
@@ -121,7 +117,6 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     this.logger.log(`Atualizando usuário ID: ${id}`);
 
-    // Verifica se o usuário existe
     const user = await this.userRepository.findOne({ where: { id } });
 
     if (!user) {
@@ -153,7 +148,6 @@ export class UsersService {
     return updateUser;
   }
 
-  // Remove um usuário pelo ID
   async remove(id: number): Promise<void> {
     this.logger.log(`Removendo usuário ID: ${id}`);
 

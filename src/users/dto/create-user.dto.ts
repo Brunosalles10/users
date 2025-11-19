@@ -7,22 +7,19 @@ import {
 } from 'class-validator';
 
 export class CreateUserDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'O nome não pode ser vazio' })
   @MaxLength(100)
   name: string;
 
   @IsEmail()
   email: string;
 
-  @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(20)
-  @Matches(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    {
-      message:
-        'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
-    },
-  )
+  @IsNotEmpty({ message: 'A senha não pode ser vazia' })
+  @MinLength(8, { message: 'A senha deve ter no mínimo 8 caracteres' })
+  @MaxLength(64, { message: 'A senha deve ter no máximo 64 caracteres' })
+  @Matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/, {
+    message:
+      'Senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.',
+  })
   password: string;
 }
