@@ -1,17 +1,12 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { CacheService } from '../redis/cache.service';
-import { PubSubService } from '../redis/pubsub.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { HandlePostActionsUtil } from './utils/handlePostActions';
+import { UserValidationUtil } from './utils/user-validation.utils';
 
 @Injectable()
 export class UsersService {
@@ -21,43 +16,24 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly cacheService: CacheService,
-    private readonly pubSubService: PubSubService,
+    private readonly handlePostActionsUtil: HandlePostActionsUtil,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
     this.logger.log(`Iniciando criação de usuário: ${createUserDto.email}`);
 
-    const existingUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email },
-    });
+    await UserValidationUtil.ensureEmailIsUnique(
+      this.userRepository,
+      createUserDto.email,
+    );
 
-    if (existingUser) {
-      this.logger.warn(`Email já está em uso: ${createUserDto.email}`);
-      throw new BadRequestException('Email já está em uso.');
-    }
-
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-
-    const newUser = this.userRepository.create({
-      ...createUserDto,
-      password: hashedPassword,
-    });
-
+    // Cria a instância
+    const newUser = this.userRepository.create(createUserDto);
     const savedUser = await this.userRepository.save(newUser);
 
-    this.logger.log(`Novo usuário criado: ${savedUser.email}`);
+    this.logger.log(`Novo usuário criado com sucesso: ${savedUser.email}`);
 
-    //  Invalida cache  de usuários
-    await this.cacheService.del('users:all');
-
-    // Publica evento no Redis (mensageria)
-    await this.pubSubService.publish('user.created', {
-      id: savedUser.id,
-      email: savedUser.email,
-      name: savedUser.name,
-    });
-
-    this.logger.log(`Evento user.created publicado  ${savedUser.email}`);
+    await this.handlePostActionsUtil.execute(savedUser, 'created');
 
     return savedUser;
   }
@@ -96,17 +72,10 @@ export class UsersService {
       return cachedUser;
     }
 
-    const user = await this.userRepository.findOne({
-      where: { id },
-      select: ['id', 'name', 'email', 'role'],
-    });
-
-    if (!user) {
-      this.logger.warn(`Usuário com id ${id} não encontrado.`);
-      throw new NotFoundException(`Usuário com id ${id} não encontrado.`);
-    }
-
-    this.logger.log(`Usuário ID ${id} encontrado: ${user.email}`);
+    const user = await UserValidationUtil.findUserOrFail(
+      this.userRepository,
+      id,
+    );
 
     // Cache de 60 segundos
     await this.cacheService.set(cacheKey, user, 60);
@@ -114,60 +83,38 @@ export class UsersService {
   }
 
   // Atualiza um usuário existente, incluindo a possibilidade de alterar a senha.
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, dto: UpdateUserDto): Promise<User> {
     this.logger.log(`Atualizando usuário ID: ${id}`);
 
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await UserValidationUtil.findUserOrFail(
+      this.userRepository,
+      id,
+    );
+    await UserValidationUtil.ensureEmailIsUnique(
+      this.userRepository,
+      dto.email,
+      id,
+      user.email,
+    );
 
-    if (!user) {
-      this.logger.warn(`Usuário com id ${id} não encontrado.`);
-      throw new NotFoundException(`Usuário com id ${id} não encontrado.`);
-    }
+    Object.assign(user, dto);
 
-    if (updateUserDto.password) {
-      this.logger.debug(`Atualizando senha do usuário ID: ${id}`);
-      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
-    }
+    const updatedUser = await this.userRepository.save(user);
 
-    // Atualiza os campos do usuário
-    Object.assign(user, updateUserDto);
-    const updateUser = await this.userRepository.save(user);
-    this.logger.log(`Usuário com id ${id} atualizado.`);
-
-    // Invalida caches relacionados ao usuário atualizado
-    await this.cacheService.del(`user:${id}`);
-    await this.cacheService.del('users:all');
-
-    // Publica evento de atualização de usuário
-    await this.pubSubService.publish('user.updated', {
-      id: updateUser.id,
-      email: updateUser.email,
-      name: updateUser.name,
-    });
-
-    return updateUser;
+    await this.handlePostActionsUtil.execute(updatedUser, 'updated');
+    return updatedUser;
   }
 
   async remove(id: number): Promise<void> {
     this.logger.log(`Removendo usuário ID: ${id}`);
 
-    const result = await this.userRepository.delete(id);
-    // Verifica se o usuário foi encontrado e removido
-    if (result.affected === 0) {
-      this.logger.error(
-        `Tentativa de exclusão falhou: usuário ID ${id} não encontrado`,
-      );
-      throw new NotFoundException(`Usuário com id ${id} não encontrado.`);
-    }
+    await UserValidationUtil.findUserOrFail(this.userRepository, id);
+    await this.userRepository.delete(id);
 
-    // Invalida caches relacionados ao usuário removido
-    await this.cacheService.del(`user:${id}`);
-    await this.cacheService.del('users:all');
+    this.logger.log(`Usuário ID ${id} removido.`);
 
-    this.logger.log(`Usuário ID ${id} removido com sucesso`);
-
-    // Publica evento de remoção de usuário
-    await this.pubSubService.publish('user.deleted', { id });
+    // Invalida caches e publica evento de deleção
+    await this.handlePostActionsUtil.execute({ id }, 'deleted');
   }
 
   //permite encontrar um usuário pelo email para fazer login
