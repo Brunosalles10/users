@@ -33,7 +33,6 @@ async function bootstrap() {
     new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
   );
   const port = process.env.PORT ?? 3000;
-  app.enableCors();
   await app.listen(port);
 
   logger.log(`Aplicação rodando na porta: http://localhost:${port}`);
